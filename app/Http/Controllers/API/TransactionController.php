@@ -197,6 +197,110 @@ class TransactionController extends Controller
         return response()->json($result, 200);
     }
 
+    public function updateRejected(Request $request)
+    {
+        if(\Auth::guard('api')->check() == false){
+            return response()->json(null, 404);
+        }
+
+        if(User::permission(\Auth::guard('api')->user()->id, "r_trx_reject") === 'false'){
+            return response()->json(null, 404);
+        }
+        
+        $exp = explode('||', $request->id);
+
+        $result["error"] = false;
+        $result["result"] = 'success';
+
+        \DB::beginTransaction();
+
+        try {
+
+            for($i=0;$i<6;$i++){
+                $d[$i] = ' IS NULL ';
+            }
+
+            for($i=0;$i<6;$i++){
+                if($exp[$i] != ''){
+                    $d[$i] = " = '".$exp[$i]."' ";
+                }
+            }
+
+            $data = \DB::connection('tibs')->statement("
+                    UPDATE rejected_transaction
+                    SET
+                        transidmerchant = ?,
+                        channel = ?,
+                        item_id = ?,
+                        product_family = ?,
+                        product = ?,
+                        nd = ?,
+                        duration = ?,
+                        price = ?,
+                        ppn = ?,
+                        payment_dtm = ?,
+                        request_dtm = ?,
+                        start_dtm = ?,
+                        end_dtm = ?,
+                        treg = ?,
+                        witel = ?,
+                        datel = ?,
+                        payment_type = ?,
+                        prov_status = ?,
+                        created_dtm = TO_CHAR(systimestamp, 'YYYY-MM-DD HH24:MI:SS')
+                    WHERE
+                        transidmerchant ".$d[0]." AND
+                        payment_dtm ".$d[1]." AND
+                        request_dtm ".$d[2]." AND
+                        start_dtm ".$d[3]." AND
+                        end_dtm ".$d[4]." AND
+                        created_dtm ".$d[5]."
+                    ", [
+                        $request->transidmerchant,
+                        $request->channel,
+                        $request->item_id,
+                        $request->product_family,
+                        $request->product,
+                        $request->nd,
+                        $request->duration,
+                        $request->price,
+                        $request->ppn,
+                        $request->payment_dtm,
+                        $request->request_dtm,
+                        $request->start_dtm,
+                        $request->end_dtm,
+                        $request->treg,
+                        $request->witel,
+                        $request->datel,
+                        $request->payment_type,
+                        $request->prov_status
+                     ]);
+
+            \DB::commit();
+
+            if($data == true){
+                $result["error"] = false;
+                $result["result"] = 'success';
+            }else{
+                $result["error"] = true;
+                $result["result"] = 'fail';
+            }
+
+            \App\Log::create('Edit Rejected Transaction');
+ 
+            return response()->json($result, 200);
+
+        } catch (\Throwable $e) {
+            \DB::rollback();
+            throw $e;
+        }
+
+        $result["error"] = true;
+        $result["result"] = 'fail';
+
+        return response()->json($result, 200);
+    }
+
     public function retryRejected(Request $request)
     {
         if(\Auth::guard('api')->check() == false){

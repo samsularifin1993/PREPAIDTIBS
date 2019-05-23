@@ -30,7 +30,9 @@ class OrganizationController extends Controller
             SELECT
                 datel_code AS id,
                 datel AS datel,   
+                witel_code AS witel_code,   
                 witel AS witel,
+                reg_code AS reg_code,
                 regional AS regional,
                 TO_CHAR(created_at, 'dd-Mon-yyyy hh24:mi:ss') AS created,
                 TO_CHAR(updated_at, 'dd-Mon-yyyy hh24:mi:ss') AS updated
