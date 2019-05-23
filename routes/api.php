@@ -96,4 +96,44 @@ Route::group(['middleware' => ['api', 'jwt']], function ($router) {
     Route::resource('organization', 'API\OrganizationController');
     Route::resource('product_family', 'API\ProductFamilyController');
     Route::resource('product', 'API\ProductController');
+    
+    Route::get('trx_success', [
+        'as'    => 'api.transaction.success',
+        'uses'   => 'API\TransactionController@trxSuccess'
+    ]);
+
+    Route::get('trx_rejected', [
+        'as'    => 'api.transaction.rejected',
+        'uses'   => 'API\TransactionController@trxRejected'
+    ]);
+
+    Route::post('reprocess_rejected', [
+        'as'    => 'api.transaction.reprocess_rejected',
+        'uses'   => 'API\TransactionController@retryRejected'
+    ]);
+
+    Route::post('reprocess_rejected_bulk', [
+        'as'    => 'api.transaction.reprocess_rejected_bulk',
+        'uses'   => 'API\TransactionController@retryBulkRejected'
+    ]);
+
+    Route::post('log', [
+        'as'    => 'api.log.index',
+        'uses'   => 'API\LogController@getAll'
+    ]);
+
+    Route::post('report_all', [
+        'as'    => 'api.report.all',
+        'uses'   => 'API\ReportController@sumAll'
+    ]);
+
+    Route::post('report_by_org', [
+        'as'    => 'api.report.report_by_org',
+        'uses'   => 'API\ReportController@sumByOrg'
+    ]);
+
+    Route::post('report_by_product', [
+        'as'    => 'api.report.report_by_product',
+        'uses'   => 'API\ReportController@sumByProduct'
+    ]);
 });

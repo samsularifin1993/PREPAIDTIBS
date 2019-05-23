@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class LogController extends Controller
 {
-    public function __construct(){
-        date_default_timezone_set('Asia/Jakarta');
-    }
     /**
      * Display a listing of the resource.
      *
@@ -16,11 +14,7 @@ class LogController extends Controller
      */
     public function index()
     {
-        if(\Auth::guard('user')->check() == false){
-            return redirect()->route('user.login');
-        }
-        
-        return view('log');
+        //
     }
 
     /**
@@ -90,8 +84,8 @@ class LogController extends Controller
     }
 
     public function getAll(Request $request){
-        if(\Auth::guard('user')->check() == false){
-            return redirect()->route('user.login');
+        if(\Auth::guard('api')->check() == false){
+            return response()->json(null, 404);
         }
 
         $date = '';
@@ -128,6 +122,9 @@ class LogController extends Controller
             $i++;
         }
 
-        return \DataTables::of($data)->make(true);
+        $result['error'] = false;
+        $result['result'] = $data;
+ 
+        return response()->json($result, 200);
     }
 }
