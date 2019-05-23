@@ -251,13 +251,33 @@ class ApiController extends Controller
     }
 
     public function gettest(){
-        $data = \DB::select("
-            SELECT
-                *
-            FROM payments
-            WHERE
-                type = ''
-            ");
+        $data = \DB::connection('tibs')->statement("
+            INSERT INTO rejected_transaction
+                (
+                    transidmerchant,
+                    channel,
+                    item_id,
+                    product_family,
+                    product,
+                    nd,
+                    duration,
+                    price,
+                    ppn,
+                    request_dtm,
+                    payment_dtm,
+                    start_dtm,
+                    end_dtm,
+                    payment_type,
+                    treg,
+                    witel,
+                    datel,
+                    created_dtm,
+                    err_code,
+                    err_desc,
+                    prov_status
+                )
+                VALUES ('XVXVXVXV',	'HSIPREP',	'1',	'HSI',	'INETB10Q50',	'33333333',	'7',	'50000',	'5000',	'2018-11-24 09:54:12',	'2018-11-22 09:54:12',	'2018-11-22 09:53:49',	'2018-11-22 09:53:49',	'BNI Transfer',	'SUMATRA',	'LAMPUNG',	'DATEL LANGSA',	'2018-11-22 09:54:14',	'1001',	'product or product family not found',	'-2')
+        ");
 
         return json_encode($data);
     }

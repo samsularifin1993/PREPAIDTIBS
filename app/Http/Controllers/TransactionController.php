@@ -52,6 +52,181 @@ class TransactionController extends Controller
 
         return view('transaction_rejected');
     }
+
+    public function edit(Request $request)
+    {
+        $exp = explode('||', $request->id);
+
+        $result["error"] = false;
+        $result["result"] = 'success';
+
+        \DB::beginTransaction();
+
+        try {
+
+            for($i=0;$i<6;$i++){
+                $d[$i] = ' IS NULL ';
+            }
+
+            for($i=0;$i<6;$i++){
+                if($exp[$i] != ''){
+                    $d[$i] = " = '".$exp[$i]."' ";
+                }
+            }
+
+            $data = \DB::connection('tibs')->select("
+                    SELECT
+                        *
+                    FROM rejected_transaction
+                    WHERE
+                        transidmerchant ".$d[0]." AND
+                        payment_dtm ".$d[1]." AND
+                        request_dtm ".$d[2]." AND
+                        start_dtm ".$d[3]." AND
+                        end_dtm ".$d[4]." AND
+                        created_dtm ".$d[5]."
+                    ");
+            
+            foreach($data as $d){
+                try{
+                    $d->id = $d->transidmerchant.'||'.$d->payment_dtm.'||'.$d->request_dtm.'||'.$d->start_dtm.'||'.$d->end_dtm.'||'.$d->created_dtm;
+                    // $d->payment_dtm = ($d->payment_dtm != '' ? $this->toTimeStamp($d->payment_dtm) : '');
+                    // $d->request_dtm = ($d->request_dtm != '' ? $this->toTimeStamp($d->request_dtm) : '');
+                    // $d->start_dtm = ($d->start_dtm != '' ? $this->toTimeStamp($d->start_dtm) : '');
+                    // $d->end_dtm = ($d->end_dtm != '' ? $this->toTimeStamp($d->end_dtm) : '');
+                    // $d->created_dtm = ($d->created_dtm != '' ? $this->toTimeStamp($d->created_dtm) : '');
+                }catch(\Exception $e){
+                    continue;
+                }
+            }
+
+            \DB::commit();
+
+            $result["data"] = $data[0];
+
+            return json_encode($result);
+        } catch (\Throwable $e) {
+            \DB::rollback();
+            throw $e;
+        }
+
+        $result["error"] = true;
+        $result["result"] = 'fail';
+
+        \App\Log::create('Edit Rejected Transaction');
+
+        return json_encode($result);
+    }
+
+    public function update(Request $request)
+    {
+        $exp = explode('||', $request->id);
+
+        $result["error"] = false;
+        $result["result"] = 'success';
+
+        \DB::beginTransaction();
+
+        try {
+
+            for($i=0;$i<6;$i++){
+                $d[$i] = ' IS NULL ';
+            }
+
+            for($i=0;$i<6;$i++){
+                if($exp[$i] != ''){
+                    $d[$i] = " = '".$exp[$i]."' ";
+                }
+            }
+
+            $data = \DB::connection('tibs')->statement("
+                    UPDATE rejected_transaction
+                    SET
+                        transidmerchant = ?,
+                        channel = ?,
+                        item_id = ?,
+                        product_family = ?,
+                        product = ?,
+                        nd = ?,
+                        duration = ?,
+                        price = ?,
+                        ppn = ?,
+                        payment_dtm = ?,
+                        request_dtm = ?,
+                        start_dtm = ?,
+                        end_dtm = ?,
+                        treg = ?,
+                        witel = ?,
+                        datel = ?,
+                        payment_type = ?,
+                        prov_status = ?,
+                        created_dtm = TO_CHAR(systimestamp, 'YYYY-MM-DD HH24:MI:SS')
+                    WHERE
+                        transidmerchant ".$d[0]." AND
+                        payment_dtm ".$d[1]." AND
+                        request_dtm ".$d[2]." AND
+                        start_dtm ".$d[3]." AND
+                        end_dtm ".$d[4]." AND
+                        created_dtm ".$d[5]."
+                    ", [
+                        $request->transidmerchant,
+                        $request->channel,
+                        $request->item_id,
+                        $request->product_family,
+                        $request->product,
+                        $request->nd,
+                        $request->duration,
+                        $request->price,
+                        $request->ppn,
+                        $request->payment_dtm,
+                        $request->request_dtm,
+                        $request->start_dtm,
+                        $request->end_dtm,
+                        $request->treg,
+                        $request->witel,
+                        $request->datel,
+                        $request->payment_type,
+                        $request->prov_status
+                     ]);
+
+
+            // foreach($data as $d){
+            //     try{
+            //         $d->id = $d->transidmerchant.'||'.$d->payment_dtm.'||'.$d->request_dtm.'||'.$d->start_dtm.'||'.$d->end_dtm.'||'.$d->created_dtm;
+            //         // $d->payment_dtm = ($d->payment_dtm != '' ? $this->toTimeStamp($d->payment_dtm) : '');
+            //         // $d->request_dtm = ($d->request_dtm != '' ? $this->toTimeStamp($d->request_dtm) : '');
+            //         // $d->start_dtm = ($d->start_dtm != '' ? $this->toTimeStamp($d->start_dtm) : '');
+            //         // $d->end_dtm = ($d->end_dtm != '' ? $this->toTimeStamp($d->end_dtm) : '');
+            //         // $d->created_dtm = ($d->created_dtm != '' ? $this->toTimeStamp($d->created_dtm) : '');
+            //     }catch(\Exception $e){
+            //         continue;
+            //     }
+            // }
+
+            \DB::commit();
+
+            if($data == true){
+                $result["error"] = false;
+                $result["result"] = 'success';
+            }else{
+                $result["error"] = true;
+                $result["result"] = 'fail';
+            }
+
+            return json_encode($result);
+
+        } catch (\Throwable $e) {
+            \DB::rollback();
+            throw $e;
+        }
+
+        $result["error"] = true;
+        $result["result"] = 'fail';
+
+        \App\Log::create('Edit Rejected Transaction');
+
+        return json_encode($result);
+    }
     
     public function retryRejected(Request $request)
     {
@@ -63,47 +238,58 @@ class TransactionController extends Controller
         \DB::beginTransaction();
 
         try {
+
+            for($i=0;$i<6;$i++){
+                $d[$i] = ' IS NULL ';
+            }
+
+            for($i=0;$i<6;$i++){
+                if($exp[$i] != ''){
+                    $d[$i] = " = '".$exp[$i]."' ";
+                }
+            }
+
             $data = \DB::connection('tibs')->select("
                     SELECT
                         *
                     FROM rejected_transaction
                     WHERE
-                        transidmerchant = ? AND
-                        payment_dtm = ? AND
-                        request_dtm = ? AND
-                        start_dtm = ? AND
-                        end_dtm = ? AND
-                        created_dtm = ?
-                    ", $exp);
+                        transidmerchant ".$d[0]." AND
+                        payment_dtm ".$d[1]." AND
+                        request_dtm ".$d[2]." AND
+                        start_dtm ".$d[3]." AND
+                        end_dtm ".$d[4]." AND
+                        created_dtm ".$d[5]."
+                    ");
                     
-            \DB::statement("
-                INSERT INTO transaction
-                    (
-                        transidmerchant,
-                        channel_code,
-                        item_id,
-                        product_code,
-                        nd,
-                        duration,
-                        price,
-                        ppn,
-                        request_dtm,
-                        payment_dtm,
-                        start_dtm,
-                        end_dtm,
-                        payment_code,
-                        org_id,
-                        datemonth,
-                        prov_status,
-                        settlement_status
-                    )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            ",[$data[0]->trans_id_merchant, $data[0]->channel, $data[0]->product, $data[0]->nd, $data[0]->duration, $data[0]->price, $data[0]->ppn, $data[0]->payment_dtm, $data[0]->request_dtm, $data[0]->start_dtm, $data[0]->end_dtm, $data[0]->payment, $data[0]->org, $data[0]->prov_status, $data[0]->created_at, date('Y-m-d H:i:s')]);
+            $conn = oci_connect(env('DB_USERNAME_TIBS', ''), env('DB_PASSWORD_TIBS', ''), env('DB_TNS_TIBS', ''));
+            if (!$conn) {
+                $e = oci_error();
+                trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+            }
 
-            \DB::statement("
-                DELETE FROM transaction_rejecteds
-                    WHERE id = ?
-            ",[$request->id]);
+            $stid = oci_parse($conn, "BEGIN REPROCESS_REJECT_TRX_ITEM(:a,:b,:c,:d,:e,:f,:g,:h,:i,:j,:k,:l,:m,:n,:o,:p,:q,:r,:s,:msg); END;");
+            oci_bind_by_name($stid,':a', $data[0]->transidmerchant);
+            oci_bind_by_name($stid,':b', $data[0]->channel);
+            oci_bind_by_name($stid,':c', $data[0]->item_id);
+            oci_bind_by_name($stid,':d', $data[0]->product_family);
+            oci_bind_by_name($stid,':e', $data[0]->product);
+            oci_bind_by_name($stid,':f', $data[0]->nd);
+            oci_bind_by_name($stid,':g', $data[0]->duration);
+            oci_bind_by_name($stid,':h', $data[0]->price);
+            oci_bind_by_name($stid,':i', $data[0]->ppn);
+            oci_bind_by_name($stid,':j', $data[0]->request_dtm);
+            oci_bind_by_name($stid,':k', $data[0]->payment_dtm);
+            oci_bind_by_name($stid,':l', $data[0]->start_dtm);
+            oci_bind_by_name($stid,':m', $data[0]->end_dtm);
+            oci_bind_by_name($stid,':n', $data[0]->payment_type);
+            oci_bind_by_name($stid,':o', $data[0]->treg);
+            oci_bind_by_name($stid,':p', $data[0]->witel);
+            oci_bind_by_name($stid,':q', $data[0]->datel);
+            oci_bind_by_name($stid,':r', $data[0]->created_dtm);
+            oci_bind_by_name($stid,':s', $data[0]->prov_status);
+            oci_bind_by_name($stid,':msg',$message,40);
+            oci_execute($stid);
 
             \DB::commit();
 
@@ -134,24 +320,59 @@ class TransactionController extends Controller
         if(count($idExp) > 0){
             foreach($idExp as $id){
                 try {
-                    $data = \DB::select("
-                                SELECT
-                                    *
-                                FROM transaction_rejecteds
-                                WHERE id = '$id'
-                                ORDER BY created_at ASC
-                            ");
-                            
-                        \DB::statement("
-                            INSERT INTO
-                                transaction_successes (trans_id_merchant, channel, product, nd, duration, price, ppn, payment_dtm, request_dtm, start_dtm, end_dtm, payment, org, prov_status, created_at, updated_at)
-                                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                        ",[$data[0]->trans_id_merchant, $data[0]->channel, $data[0]->product, $data[0]->nd, $data[0]->duration, $data[0]->price, $data[0]->ppn, $data[0]->payment_dtm, $data[0]->request_dtm, $data[0]->start_dtm, $data[0]->end_dtm, $data[0]->payment, $data[0]->org, $data[0]->prov_status, $data[0]->created_at, date('Y-m-d H:i:s')]);
+                    $exp = explode('||', $id);
 
-                        \DB::statement("
-                            DELETE FROM transaction_rejecteds
-                                WHERE id = ?
-                        ",[$id]);
+                    for($i=0;$i<6;$i++){
+                        $d[$i] = ' IS NULL ';
+                    }
+        
+                    for($i=0;$i<6;$i++){
+                        if($exp[$i] != ''){
+                            $d[$i] = " = '".$exp[$i]."' ";
+                        }
+                    }
+
+                    $data = \DB::connection('tibs')->select("
+                        SELECT
+                        *
+                        FROM rejected_transaction
+                        WHERE
+                            transidmerchant ".$d[0]." AND
+                            payment_dtm ".$d[1]." AND
+                            request_dtm ".$d[2]." AND
+                            start_dtm ".$d[3]." AND
+                            end_dtm ".$d[4]." AND
+                            created_dtm ".$d[5]."
+                        ");
+                    
+                    $conn = oci_connect(env('DB_USERNAME_TIBS', ''), env('DB_PASSWORD_TIBS', ''), env('DB_TNS_TIBS', ''));
+                    if (!$conn) {
+                        $e = oci_error();
+                        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+                    }
+
+                    $stid = oci_parse($conn, "BEGIN REPROCESS_REJECT_TRX_ITEM(:a,:b,:c,:d,:e,:f,:g,:h,:i,:j,:k,:l,:m,:n,:o,:p,:q,:r,:s,:msg); END;");
+                    oci_bind_by_name($stid,':a', $data[0]->transidmerchant);
+                    oci_bind_by_name($stid,':b', $data[0]->channel);
+                    oci_bind_by_name($stid,':c', $data[0]->item_id);
+                    oci_bind_by_name($stid,':d', $data[0]->product_family);
+                    oci_bind_by_name($stid,':e', $data[0]->product);
+                    oci_bind_by_name($stid,':f', $data[0]->nd);
+                    oci_bind_by_name($stid,':g', $data[0]->duration);
+                    oci_bind_by_name($stid,':h', $data[0]->price);
+                    oci_bind_by_name($stid,':i', $data[0]->ppn);
+                    oci_bind_by_name($stid,':j', $data[0]->request_dtm);
+                    oci_bind_by_name($stid,':k', $data[0]->payment_dtm);
+                    oci_bind_by_name($stid,':l', $data[0]->start_dtm);
+                    oci_bind_by_name($stid,':m', $data[0]->end_dtm);
+                    oci_bind_by_name($stid,':n', $data[0]->payment_type);
+                    oci_bind_by_name($stid,':o', $data[0]->treg);
+                    oci_bind_by_name($stid,':p', $data[0]->witel);
+                    oci_bind_by_name($stid,':q', $data[0]->datel);
+                    oci_bind_by_name($stid,':r', $data[0]->created_dtm);
+                    oci_bind_by_name($stid,':s', $data[0]->prov_status);
+                    oci_bind_by_name($stid,':msg',$message,40);
+                    oci_execute($stid);
 
                     $i++;
 
@@ -183,7 +404,7 @@ class TransactionController extends Controller
 
         $data = \DB::connection('tibs')->select("
             SELECT
-                a.transidmerchant AS trans_id_merchant,
+                a.transidmerchant AS transidmerchant,
                 a.item_id AS item_id,
                 a.nd AS nd,
                 a.duration AS duration,
@@ -221,7 +442,7 @@ class TransactionController extends Controller
         $data = \DB::connection('tibs')->select("
             SELECT
                 transidmerchant AS id,
-                transidmerchant AS trans_id_merchant,
+                transidmerchant AS transidmerchant,
                 channel AS channel,
                 item_id AS item_id,
                 nd AS nd,
@@ -248,12 +469,12 @@ class TransactionController extends Controller
 
         foreach($data as $d){
             try{
-                $d->id = $d->trans_id_merchant.'||'.$d->payment_dtm.'||'.$d->request_dtm.'||'.$d->start_dtm.'||'.$d->end_dtm.'||'.$d->created_dtm;
-                $d->payment_dtm = $this->toTimeStamp($d->payment_dtm);
-                $d->request_dtm = $this->toTimeStamp($d->request_dtm);
-                $d->start_dtm = $this->toTimeStamp($d->start_dtm);
-                $d->end_dtm = $this->toTimeStamp($d->end_dtm);
-                $d->created_dtm = $this->toTimeStamp($d->created_dtm);    
+                $d->id = $d->transidmerchant.'||'.$d->payment_dtm.'||'.$d->request_dtm.'||'.$d->start_dtm.'||'.$d->end_dtm.'||'.$d->created_dtm;
+                // $d->payment_dtm = ($d->payment_dtm != '' ? $this->toTimeStamp($d->payment_dtm) : '');
+                // $d->request_dtm = ($d->request_dtm != '' ? $this->toTimeStamp($d->request_dtm) : '');
+                // $d->start_dtm = ($d->start_dtm != '' ? $this->toTimeStamp($d->start_dtm) : '');
+                // $d->end_dtm = ($d->end_dtm != '' ? $this->toTimeStamp($d->end_dtm) : '');
+                // $d->created_dtm = ($d->created_dtm != '' ? $this->toTimeStamp($d->created_dtm) : '');
             }catch(\Exception $e){
                 continue;
             }

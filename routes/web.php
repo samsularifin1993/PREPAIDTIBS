@@ -537,6 +537,16 @@ Route::group(['middleware' => ['prevent.back.history', 'frontend']], function ()
         'uses'   => 'TransactionController@retryBulkRejected'
     ]);
 
+    Route::post('trans_reject_edit', [
+        'as'    => 'transactionRejected.edit',
+        'uses'   => 'TransactionController@edit'
+    ]);
+
+    Route::post('trans_reject_update', [
+        'as'    => 'transactionRejected.update',
+        'uses'   => 'TransactionController@update'
+    ]);
+
     Route::get('dashboard_administrator', [
         'as'    => 'dashboard.administrator',
         'uses'   => 'DashboardController@administrator'

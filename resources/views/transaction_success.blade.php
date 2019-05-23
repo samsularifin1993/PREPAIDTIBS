@@ -104,7 +104,7 @@
                 type: "GET",
             },
             columns: [
-                { data: 'trans_id_merchant',name: 'trans_id_merchant'},
+                { data: 'transidmerchant',name: 'transidmerchant'},
                 { data: 'channel',name: 'channel'},
                 { data: 'item_id',name: 'item_id'},
                 { data: 'product',name: 'product'},

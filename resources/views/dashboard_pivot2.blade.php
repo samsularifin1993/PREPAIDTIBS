@@ -344,7 +344,7 @@
             },
             ajax: '{{ route('transaction.getAllSuccess') }}',
             columns: [
-                { data: 'trans_id_merchant',name: 'trans_id_merchant'},
+                { data: 'transidmerchant',name: 'transidmerchant'},
                 { data: 'channel',name: 'channel'},
                 { data: 'product',name: 'product'},
                 { data: 'nd',name: 'nd'},
