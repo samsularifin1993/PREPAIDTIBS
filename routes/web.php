@@ -633,34 +633,34 @@ Route::group(['middleware' => ['prevent.back.history', 'frontend']], function ()
     ]);
 });
 
-Route::group(['prefix' => 'api'], function () {
-    Route::get('getToken', [
-        'as'    => 'api.get_token',
-        'uses'   => 'ApiController@getToken'
-    ]);
+// Route::group(['prefix' => 'api'], function () {
+//     Route::get('getToken', [
+//         'as'    => 'api.get_token',
+//         'uses'   => 'ApiController@getToken'
+//     ]);
 
-    Route::get('generateToken', [
-        'as'    => 'api.generate_token',
-        'uses'   => 'ApiController@generateToken'
-    ]);
+//     Route::get('generateToken', [
+//         'as'    => 'api.generate_token',
+//         'uses'   => 'ApiController@generateToken'
+//     ]);
 
-    Route::get('trans_success', [
-        'as'    => 'api.trans_success',
-        'uses'   => 'ApiController@trans_success'
-    ]);
+//     Route::get('trans_success', [
+//         'as'    => 'api.trans_success',
+//         'uses'   => 'ApiController@trans_success'
+//     ]);
 
-    Route::get('rev_by_org', [
-        'as'    => 'api.rev_by_org',
-        'uses'   => 'ApiController@byOrg'
-    ]);
+//     Route::get('rev_by_org', [
+//         'as'    => 'api.rev_by_org',
+//         'uses'   => 'ApiController@byOrg'
+//     ]);
 
-    Route::get('rev_by_product', [
-        'as'    => 'api.rev_by_product',
-        'uses'   => 'ApiController@byProduct'
-    ]);
-});
+//     Route::get('rev_by_product', [
+//         'as'    => 'api.rev_by_product',
+//         'uses'   => 'ApiController@byProduct'
+//     ]);
+// });
 
-Route::get('gettest', [
-    'as'    => 'gettest',
-    'uses'   => 'ApiController@gettest'
-]);
+// Route::get('gettest', [
+//     'as'    => 'gettest',
+//     'uses'   => 'ApiController@gettest'
+// ]);
