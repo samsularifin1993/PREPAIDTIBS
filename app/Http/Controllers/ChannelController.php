@@ -87,12 +87,20 @@ class ChannelController extends Controller
 
             \DB::beginTransaction();
 
+            $code = $this->generateCode();
+
             try {
                 \DB::connection('tibs')->statement("
                     INSERT INTO
                         channel (code, name, description, created_at, updated_at)
                         VALUES (?,?,?, sysdate, sysdate)
-                ",[$this->generateCode(), strtoupper($request->name), strtoupper($request->description)]);
+                ",[$code, strtoupper($request->name), strtoupper($request->description)]);
+
+                \DB::connection('tibs')->statement("
+                    INSERT INTO
+                        channel_map (name, code)
+                        VALUES (?,?)
+                ",[strtoupper($request->name), $code]);
 
                 \DB::commit();
             } catch (\Throwable $e) {
@@ -188,6 +196,12 @@ class ChannelController extends Controller
                         WHERE code=?
                 ",[strtoupper($request->name_old), strtoupper($request->description_old), $request->id]);
 
+                \DB::connection('tibs')->statement("
+                    UPDATE channel_map
+                        SET name=?
+                        WHERE code=?
+                ",[strtoupper($request->name_old), $request->id]);
+
                 \DB::commit();
             } catch (\Throwable $e) {
                 \DB::rollback();
@@ -235,6 +249,11 @@ class ChannelController extends Controller
             try {
                 \DB::connection('tibs')->statement("
                     DELETE FROM channel
+                        WHERE code = ?
+                ",[$request->id]);
+
+                \DB::connection('tibs')->statement("
+                    DELETE FROM channel_map
                         WHERE code = ?
                 ",[$request->id]);
 

@@ -121,13 +121,21 @@ class OrganizationController extends Controller
 
             \DB::beginTransaction();
 
+            $code = $this->generateId();
+
             try {
                 \DB::connection('tibs')->statement("
                     INSERT INTO
                         org (id, regional, reg_code, witel, witel_code, datel, datel_code, created_at, updated_at)
                         VALUES (?,?,?,?,?,?,?,sysdate,sysdate)
-                ",[$this->generateId(), strtoupper($regional[0]->regional), $regional[0]->reg_code, strtoupper($witel[0]->witel), $witel[0]->witel_code, strtoupper($request->datel), $this->generateCode($witel[0]->witel_code)]);
+                ",[$code, strtoupper($regional[0]->regional), $regional[0]->reg_code, strtoupper($witel[0]->witel), $witel[0]->witel_code, strtoupper($request->datel), $this->generateCode($witel[0]->witel_code)]);
 
+                \DB::connection('tibs')->statement("
+                    INSERT INTO
+                        org_map (name, type, code)
+                        VALUES (?,?,?)
+                ",[strtoupper($request->datel), '3', $this->generateCode($witel[0]->witel_code)]);
+                
                 \DB::commit();
             } catch (\Throwable $e) {
                 \DB::rollback();
@@ -320,6 +328,12 @@ class OrganizationController extends Controller
                         WHERE datel_code=?
                 ",[strtoupper($request->datel_old), $request->id]);
 
+                \DB::connection('tibs')->statement("
+                    UPDATE org_map
+                        SET name=?
+                        WHERE code=?
+                ",[strtoupper($request->datel_old), $request->id]);
+
                 \DB::commit();
             } catch (\Throwable $e) {
                 \DB::rollback();
@@ -368,6 +382,11 @@ class OrganizationController extends Controller
                 \DB::connection('tibs')->statement("
                     DELETE FROM org
                         WHERE datel_code = ?
+                ",[$request->id]);
+
+                \DB::connection('tibs')->statement("
+                    DELETE FROM org_map
+                        WHERE code = ?
                 ",[$request->id]);
 
                 \DB::commit();

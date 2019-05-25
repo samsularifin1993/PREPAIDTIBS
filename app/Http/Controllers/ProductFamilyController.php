@@ -87,12 +87,20 @@ class ProductFamilyController extends Controller
 
             \DB::beginTransaction();
 
+            $code = $this->generateCode();
+
             try {
                 \DB::connection('tibs')->statement("
                     INSERT INTO
                         product_family (code, name, description, created_at, updated_at)
                         VALUES (?,?,?,sysdate,sysdate)
-                ",[$this->generateCode(), strtoupper($request->name), strtoupper($request->description)]);
+                ",[$code, strtoupper($request->name), strtoupper($request->description)]);
+
+                \DB::connection('tibs')->statement("
+                    INSERT INTO
+                        product_map (name, family, type, code)
+                        VALUES (?,?,?,?)
+                ",[strtoupper($request->name), '', '1', $code]);
 
                 \DB::commit();
             } catch (\Throwable $e) {
@@ -185,6 +193,12 @@ class ProductFamilyController extends Controller
                         WHERE code=?
                 ",[strtoupper($request->name_old), strtoupper($request->description_old), $request->id]);
 
+                \DB::connection('tibs')->statement("
+                    UPDATE product_map
+                        SET name=?
+                        WHERE code=?
+                ",[strtoupper($request->name_old),  $request->id]);
+
                 \DB::commit();
             } catch (\Throwable $e) {
                 \DB::rollback();
@@ -232,6 +246,11 @@ class ProductFamilyController extends Controller
             try {
                 \DB::connection('tibs')->statement("
                     DELETE FROM product_family
+                        WHERE code = ?
+                ",[$request->id]);
+
+                \DB::connection('tibs')->statement("
+                    DELETE FROM product_map
                         WHERE code = ?
                 ",[$request->id]);
 

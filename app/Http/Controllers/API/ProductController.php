@@ -103,12 +103,27 @@ class ProductController extends Controller
 
             \DB::beginTransaction();
 
+            $code = $this->generateCode($request->product_family);
+
             try {
+                $data = \DB::connection('tibs')->select("
+                    SELECT
+                        name
+                    FROM product_family
+                    WHERE code = ?
+                ", [$request->product_family]);
+
                 \DB::connection('tibs')->statement("
                     INSERT INTO
                         product (code, name, description, family_code, created_at, updated_at)
                         VALUES (?,?,?,?,sysdate,sysdate)
-                ",[$this->generateCode($request->product_family), strtoupper($request->name), strtoupper($request->description), $request->product_family]);
+                ",[$code, strtoupper($request->name), strtoupper($request->description), $request->product_family]);
+
+                \DB::connection('tibs')->statement("
+                    INSERT INTO
+                        product_map (name, family, type, code)
+                        VALUES (?,?,?,?)
+                ",[strtoupper($request->name), $data[0]->name, '2', $code]);
 
                 \DB::commit();
             } catch (\Throwable $e) {
@@ -224,12 +239,27 @@ class ProductController extends Controller
 
             \DB::beginTransaction();
 
+            $code = $this->generateCode($request->product_family);
+
             try {
+                $data = \DB::connection('tibs')->select("
+                    SELECT
+                        name
+                    FROM product_family
+                    WHERE code = ?
+                ", [$request->product_family]);
+
                 \DB::connection('tibs')->statement("
                     UPDATE product
                         SET code=?, name=?, description=?, family_code=?, updated_at=sysdate
                         WHERE code=?
-                ",[$this->generateCode($request->product_family), strtoupper($request->name), strtoupper($request->description), $request->product_family, $id]);
+                ",[$code, strtoupper($request->name), strtoupper($request->description), $request->product_family, $id]);
+
+                \DB::connection('tibs')->statement("
+                    UPDATE product_map
+                        SET name=?, family=?, code=?
+                        WHERE code=?
+                ",[strtoupper($request->name), $data[0]->name, $code, $id]);
 
                 \DB::commit();
             } catch (\Throwable $e) {
@@ -295,6 +325,11 @@ class ProductController extends Controller
                 \DB::connection('tibs')->statement("
                     DELETE FROM product
                     WHERE code = ?
+                ",[$id]);
+
+                \DB::connection('tibs')->statement("
+                    DELETE FROM product_map
+                        WHERE code = ?
                 ",[$id]);
 
                 \DB::commit();

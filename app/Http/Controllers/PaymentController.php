@@ -87,12 +87,20 @@ class PaymentController extends Controller
 
             \DB::beginTransaction();
 
+            $code = $this->generateCode();
+
             try {
                 \DB::connection('tibs')->statement("
                     INSERT INTO
                         payment (code, type, description, created_at, updated_at)
                         VALUES (?,?,?, sysdate, sysdate)
-                ",[$this->generateCode(), strtoupper($request->type), strtoupper($request->description)]);
+                ",[$code, strtoupper($request->type), strtoupper($request->description)]);
+
+                \DB::connection('tibs')->statement("
+                    INSERT INTO
+                        payment_map (name, code)
+                        VALUES (?,?,?, sysdate, sysdate)
+                ",[strtoupper($request->type), $code]);
 
                 \DB::commit();
             } catch (\Throwable $e) {
@@ -185,6 +193,12 @@ class PaymentController extends Controller
                         WHERE code=?
                 ",[strtoupper($request->type_old), strtoupper($request->description_old), $request->id]);
 
+                \DB::connection('tibs')->statement("
+                    UPDATE payment_map
+                        SET name=?
+                        WHERE code=?
+                ",[strtoupper($request->type_old), $request->id]);
+
                 \DB::commit();
             } catch (\Throwable $e) {
                 \DB::rollback();
@@ -232,6 +246,11 @@ class PaymentController extends Controller
             try {
                 \DB::connection('tibs')->statement("
                     DELETE FROM payment
+                        WHERE code = ?
+                ",[$request->id]);
+
+                \DB::connection('tibs')->statement("
+                    DELETE FROM payment_map
                         WHERE code = ?
                 ",[$request->id]);
 
