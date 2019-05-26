@@ -11,6 +11,32 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
+
+    .input-width {
+        max-width: 10000px;
+    }
+
+    .full_modal-dialog {
+        width: 98% !important;
+        height: 92% !important;
+        min-width: 98% !important;
+        min-height: 92% !important;
+        max-width: 98% !important;
+        max-height: 92% !important;
+        padding: 0 !important;
+    }
+
+    .full_modal-content {
+        height: 99% !important;
+        min-height: 99% !important;
+        max-height: 99% !important;
+    }
+
+    .tablex {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css">
 <link rel="stylesheet" type="text/css" href="https://pivottable.js.org/dist/pivot.css">
@@ -33,6 +59,64 @@
       </div>
 
       <div id="output"></div>
+
+      <div class="modal fade" id="filter_modal" tabindex="-1" role="dialog" aria-labelledby="filter" aria-hidden="true">
+            <div class="modal-dialog full_modal-dialog" role="document">
+                <div class="modal-content full_modal-content">
+                    <form id="form_filter" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="id" name="id">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Filter</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @csrf
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="opt_org">Organization</label>
+                                        <select name="opt_org" id="opt_org" class="form-control field">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="opt_product">Product</label>
+                                        <select name="opt_product" id="opt_product" class="form-control field">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="opt_payment">Payment</label>
+                                        <select name="opt_payment" id="opt_payment" class="form-control field">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" name="close" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="save">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    <div class="row">
+        <div class="col-md-6"></div>
+        <div class="col-md-6 text-right">
+            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filter_modal">Filter</button>
+        </div>
+    </div>
 
       <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
 
@@ -97,7 +181,7 @@
     var myChart;
     var myChart2;
 
-    function viewChart(dataValue){
+    function viewChart(revenue, ppn){
         if(myChart != undefined || myChart != null){
             myChart.destroy();
         }
@@ -109,9 +193,15 @@
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
                     label: 'Revenue',
-                    data: dataValue,
+                    data: revenue,
                     backgroundColor: 'transparent',
                     borderColor: '#007bff',
+                    borderWidth: 1
+                }, {
+                    label: 'PPN',
+                    data: ppn,
+                    backgroundColor: 'transparent',
+                    borderColor: '#a142f4',
                     borderWidth: 1
                 }]
             },
@@ -122,6 +212,9 @@
                             beginAtZero: true
                         }
                     }]
+                },
+                legend: {
+                    onClick: function (e) { e.stopPropagation(); }
                 }
             }
         });
@@ -228,7 +321,20 @@
                         arrayData[json[i].datemonth - 1] = parseInt(json[i].sum_price);
                     }
                 }
-                viewChart(arrayData);
+                
+                var data1 = arrayData;
+
+                arrayData = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+                if(json.length != 0){
+                    for(var i=0; i < json.length; i++){
+                        arrayData[json[i].datemonth - 1] = parseInt(json[i].sum_ppn);
+                    }
+                }
+
+                var data2 = arrayData;
+
+                viewChart(data1, data2);
             }
         });
 
@@ -362,8 +468,193 @@
             scrollX: true
         });
 
+        listOrg();
+        listProduct();
+        listPayment();
         getChart($('#year').find(":selected").val());
     });
+
+    $("#form_filter").on('submit', function(e){
+        e.preventDefault();
+
+        var arrayData = [0,0,0,0,0,0,0,0,0,0,0,0];
+        var formData = new FormData();
+        formData.append("org", $('#opt_org').find(":selected").val());
+        formData.append("product", $('#opt_product').find(":selected").val());
+        formData.append("payment", $('#opt_payment').find(":selected").val());
+        formData.append("year", $('#year').find(":selected").val());
+            
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },            
+            type    : 'POST',
+            url     : "{{ route('dashboard.value') }}",
+            data    : formData,
+            contentType: false,
+            cache: false,
+            processData:false,
+            dataType:'json',
+            beforeSend: function(){
+            },
+            succes  : function () {
+                console.log('Sukses');
+            },
+            error   : function (xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            },
+            complete : function (data) {
+                var json = JSON.parse(data.responseText);
+
+                if(json.length != 0){
+                    for(var i=0; i < json.length; i++){
+                        arrayData[json[i].datemonth - 1] = parseInt(json[i].sum_price);
+                    }
+                }
+                
+                var data1 = arrayData;
+
+                arrayData = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+                if(json.length != 0){
+                    for(var i=0; i < json.length; i++){
+                        arrayData[json[i].datemonth - 1] = parseInt(json[i].sum_ppn);
+                    }
+                }
+
+                var data2 = arrayData;
+
+                viewChart(data1, data2);
+
+                $("button[data-dismiss='modal']").click();
+            }
+        });
+    });
+
+    function listOrg(){
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: 'GET',
+            url: '{{ route("organization.item.map") }}',
+            contentType: false,
+            cache: false,
+            processData:false,
+            dataType:'json',
+            beforeSend: function(){
+                $('#opt_org')
+                    .empty()
+                    .append('<option value="">All</option>');
+            },
+            succes  : function () {
+                console.log('Sukses');
+            },
+            error   : function (xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            },
+            complete : function (data) {
+                var json = JSON.parse(data.responseText);
+
+                if(json != null && json.length > 0){
+                    for(var i=0; i<json.length; i++){
+                        var id = json[i].id;
+                        var name = json[i].name;
+
+                        var option = "<option value='"+id+"'>"+name+"</option>"; 
+
+                        $("#opt_org").append(option);
+                    }
+                }
+            }
+        });
+    }
+
+    function listProduct(){
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: 'GET',
+            url: '{{ route("product.map") }}',
+            contentType: false,
+            cache: false,
+            processData:false,
+            dataType:'json',
+            beforeSend: function(){
+                $('#opt_product')
+                    .empty()
+                    .append('<option value="">All</option>');
+            },
+            succes  : function () {
+                console.log('Sukses');
+            },
+            error   : function (xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            },
+            complete : function (data) {
+                var json = JSON.parse(data.responseText);
+
+                if(json != null && json.length > 0){
+                    for(var i=0; i<json.length; i++){
+                        var id = json[i].id;
+                        var name = json[i].name;
+
+                        var option = "<option value='"+id+"'>"+name+"</option>"; 
+
+                        $("#opt_product").append(option);
+                    }
+                }
+            }
+        });
+    }
+
+    function listPayment(){
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: 'GET',
+            url: '{{ route("payment.map") }}',
+            contentType: false,
+            cache: false,
+            processData:false,
+            dataType:'json',
+            beforeSend: function(){
+                $('#opt_payment')
+                    .empty()
+                    .append('<option value="">All</option>');
+            },
+            succes  : function () {
+                console.log('Sukses');
+            },
+            error   : function (xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            },
+            complete : function (data) {
+                var json = JSON.parse(data.responseText);
+
+                if(json != null && json.length > 0){
+                    for(var i=0; i<json.length; i++){
+                        var id = json[i].id;
+                        var name = json[i].name;
+
+                        var option = "<option value='"+id+"'>"+name+"</option>"; 
+
+                        $("#opt_payment").append(option);
+                    }
+                }
+            }
+        });
+    }
 </script>
 @endif
 

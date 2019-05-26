@@ -382,6 +382,11 @@ Route::group(['middleware' => ['prevent.back.history', 'frontend']], function ()
         'uses'   => 'OrganizationController@liWitel'
     ]);
 
+    Route::get('li_org', [
+        'as'    => 'organization.item.map',
+        'uses'   => 'OrganizationController@liOrgMap'
+    ]);
+
     Route::post('organizationRegionalStore', [
         'as'    => 'organization.store.regional',
         'uses'   => 'OrganizationController@storeRegional'
@@ -427,6 +432,11 @@ Route::group(['middleware' => ['prevent.back.history', 'frontend']], function ()
     Route::post('paymentDelete', [
         'as'    => 'payment.delete',
         'uses'   => 'PaymentController@destroy'
+    ]);
+
+    Route::get('li_payment', [
+        'as'    => 'payment.map',
+        'uses'   => 'PaymentController@liMap'
     ]);
 
     //Product Family
@@ -501,6 +511,11 @@ Route::group(['middleware' => ['prevent.back.history', 'frontend']], function ()
     Route::post('productDelete', [
         'as'    => 'product.delete',
         'uses'   => 'ProductController@destroy'
+    ]);
+
+    Route::get('li_product', [
+        'as'    => 'product.map',
+        'uses'   => 'ProductController@liMap'
     ]);
 
     //Transaction Success

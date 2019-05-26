@@ -300,4 +300,12 @@ class PaymentController extends Controller
 
         return json_encode($data);
     }
+
+    public function liMap(){
+        $data = \DB::connection('tibs')->select("
+            SELECT DISTINCT code AS id, name AS name FROM payment_map ORDER BY name ASC
+         ");
+
+        return json_encode($data);
+    }
 }

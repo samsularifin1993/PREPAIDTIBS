@@ -28,6 +28,8 @@ class AuthController extends Controller
         if ($this->loginAfterSignUp) {
             return $this->login($request);
         }
+
+        \App\Log::createWithApi('Register New User');
  
         return response()->json([
             'success' => true,
@@ -47,6 +49,8 @@ class AuthController extends Controller
             ], 401);
         }
  
+        \App\Log::createWithApi('Login');
+
         return response()->json([
             'success' => true,
             'token' => $jwt_token,
@@ -58,6 +62,8 @@ class AuthController extends Controller
         try {
             \JWTAuth::invalidate($request->token);
  
+            \App\Log::createWithApi('Logout');
+
             return response()->json([
                 'success' => true,
                 'message' => 'User logged out successfully'

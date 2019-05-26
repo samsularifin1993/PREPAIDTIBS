@@ -458,4 +458,16 @@ class OrganizationController extends Controller
 
         return json_encode($data);
     }
+
+    public function liOrgMap(){
+        $data = \DB::connection('tibs')->select("
+            SELECT * FROM org ORDER BY id ASC
+         ");
+
+        foreach($data as $d){
+            $d->name = $d->regional.' / '.$d->witel.' / '.$d->datel;
+        }
+
+        return json_encode($data);
+    }
 }

@@ -350,4 +350,12 @@ class ProductController extends Controller
 
         return json_encode($data);
     }
+
+    public function liMap(){
+        $data = \DB::connection('tibs')->select("
+            SELECT DISTINCT code AS id, name AS name, type AS type FROM product_map ORDER BY type ASC
+         ");
+
+        return json_encode($data);
+    }
 }

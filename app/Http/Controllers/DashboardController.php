@@ -132,10 +132,25 @@ class DashboardController extends Controller
 
     public function value(Request $request)
     {
+        $str = '';
+
+        if($request->org != ''){
+            $str .= " and org_id = '".$request->org."'";
+        }
+
+        if($request->product != ''){
+            $str .= " and product_code = '".$request->product."'";
+        }
+
+        if($request->payment != ''){
+            $str .= " and payment_code = '".$request->payment."'";
+        }
+
         $data = \DB::connection('tibs')->select("
-            SELECT SUM(price) AS sum_price, datemonth
+            SELECT SUM(price) AS sum_price, SUM(ppn) AS sum_ppn, datemonth
             FROM transaction
             WHERE EXTRACT(year FROM payment_dtm) = '$request->year'
+            ".$str."
             GROUP BY EXTRACT(month FROM payment_dtm), datemonth
             ORDER BY EXTRACT(month FROM payment_dtm) ASC
          ");
