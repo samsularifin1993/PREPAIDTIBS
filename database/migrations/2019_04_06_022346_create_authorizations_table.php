@@ -52,11 +52,6 @@ class CreateAuthorizationsTable extends Migration
             $table->enum('product_u',['true','false']);
             $table->enum('product_d',['true','false']);
 
-            $table->enum('error_r',['true','false']);
-            $table->enum('error_i',['true','false']);
-            $table->enum('error_u',['true','false']);
-            $table->enum('error_d',['true','false']);
-
             $table->enum('v_dashboard_admin',['true','false']);
             $table->enum('v_dashboard_revenue',['true','false']);
             $table->enum('r_trx_success',['true','false']);

@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PaymentTableSeeder::class);
         $this->call(ProductFamilyTableSeeder::class);
         $this->call(ProductTableSeeder::class);
-        $this->call(ErrorCodeTableSeeder::class);
         $this->call(TransactionSuccessTableSeeder::class);
         $this->call(TransactionRejectedTableSeeder::class);
         $this->call(AuthorizationTableSeeder::class);

@@ -395,6 +395,68 @@ class TransactionController extends Controller
         return json_encode($result);
     }
 
+    public function retrieveTrx(Request $request){
+        // if($request->order_by == 'channel'){
+        //     $request->order_by = 'a.channel';
+        // }else{
+        //     $request->order_by = 'a.created_at';
+        // }
+
+        $str = '';
+
+        if($request->year != ''){
+            $str .= "EXTRACT(year FROM a.payment_dtm) = '$request->year'";
+        }
+
+        if($request->org != ''){
+            $str .= " AND a.org_id = '".$request->org."'";
+        }
+
+        if($request->product != ''){
+            $str .= " AND a.product_code = '".$request->product."'";
+        }
+
+        if($request->payment != ''){
+            $str .= " AND a.payment_code = '".$request->payment."'";
+        }
+
+        $data = \DB::connection('tibs')->select("
+            SELECT
+                a.transidmerchant AS transidmerchant,
+                a.item_id AS item_id,
+                a.nd AS nd,
+                a.duration AS duration,
+                a.price AS price,
+                a.ppn AS ppn,
+                TO_CHAR(a.payment_dtm, 'dd-Mon-yyyy hh24:mi:ss') AS payment_dtm,
+                TO_CHAR(a.request_dtm, 'dd-Mon-yyyy hh24:mi:ss') AS request_dtm,
+                TO_CHAR(a.start_dtm, 'dd-Mon-yyyy hh24:mi:ss') AS start_dtm,
+                TO_CHAR(a.end_dtm, 'dd-Mon-yyyy hh24:mi:ss') AS end_dtm,
+                a.datemonth AS datemonth,
+                (CASE WHEN a.prov_status = '2' THEN 'Sudah' ELSE 'Belum' END) AS prov_status,
+                a.settlement_id AS settlement_id,
+                a.transfer_dtm AS transfer_dtm,
+                a.settlement_status AS settlement_status,                
+                b.name AS channel,
+                c.name AS product,
+                d.type AS payment,
+                e.datel AS org                
+            FROM transaction a
+            LEFT JOIN channel b
+                ON a.channel_code = b.code
+            LEFT JOIN product_map c
+                ON a.product_code = c.code
+            LEFT JOIN payment d
+                ON a.payment_code = d.code
+            LEFT JOIN org e
+                ON a.org_id = e.id
+            WHERE ".$str."
+            ORDER BY a.datemonth DESC
+         ");
+
+        return \DataTables::of($data)->make(true);
+    }
+
     public function getAllSuccess(Request $request){
         // if($request->order_by == 'channel'){
         //     $request->order_by = 'a.channel';

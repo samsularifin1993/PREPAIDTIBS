@@ -48,11 +48,6 @@ class AuthorizationTableSeeder extends Seeder
             'product_u' => 'true',
             'product_d' => 'true',
 
-            'error_r' => 'true',
-            'error_i' => 'true',
-            'error_u' => 'true',
-            'error_d' => 'true',
-
             'v_dashboard_admin' => 'true',
             'v_dashboard_revenue' => 'true',
             'r_trx_success' => 'true',
@@ -103,11 +98,6 @@ class AuthorizationTableSeeder extends Seeder
             'product_u' => 'false',
             'product_d' => 'false',
 
-            'error_r' => 'true',
-            'error_i' => 'false',
-            'error_u' => 'false',
-            'error_d' => 'false',
-
             'v_dashboard_admin' => 'false',
             'v_dashboard_revenue' => 'true',
             'r_trx_success' => 'true',
@@ -157,11 +147,6 @@ class AuthorizationTableSeeder extends Seeder
             'product_i' => 'false',
             'product_u' => 'false',
             'product_d' => 'false',
-
-            'error_r' => 'true',
-            'error_i' => 'false',
-            'error_u' => 'false',
-            'error_d' => 'false',
 
             'v_dashboard_admin' => 'false',
             'v_dashboard_revenue' => 'true',

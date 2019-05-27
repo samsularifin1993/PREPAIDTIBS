@@ -18,9 +18,9 @@
 
     .full_modal-dialog {
         width: 98% !important;
-        height: 92% !important;
+        height: 40% !important;
         min-width: 98% !important;
-        min-height: 92% !important;
+        min-height: 40% !important;
         max-width: 98% !important;
         max-height: 92% !important;
         padding: 0 !important;

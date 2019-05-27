@@ -530,6 +530,11 @@ Route::group(['middleware' => ['prevent.back.history', 'frontend']], function ()
         'uses'   => 'TransactionController@getAllSuccess'
     ]);
 
+    Route::post('retrieve_trx', [
+        'as'    => 'transaction.retrievetrx',
+        'uses'   => 'TransactionController@retrieveTrx'
+    ]);
+
     //Transaction Rejected
 
     Route::get('transaction_rejected', [

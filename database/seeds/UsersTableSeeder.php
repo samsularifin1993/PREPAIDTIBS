@@ -15,7 +15,6 @@ class UsersTableSeeder extends Seeder
             'name' => 'Administrator',
             'password' => bcrypt('admin1234'),
             'id_role' => '1',
-            'token_api' => '',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -25,7 +24,6 @@ class UsersTableSeeder extends Seeder
             'name' => 'Finance',
             'password' => bcrypt('fin1234'),
             'id_role' => '2',
-            'token_api' => '',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -35,7 +33,6 @@ class UsersTableSeeder extends Seeder
             'name' => 'Marketing',
             'password' => bcrypt('mark1234'),
             'id_role' => '3',
-            'token_api' => '',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
