@@ -68,7 +68,8 @@
             $.pivotUtilities.renderers,
             $.pivotUtilities.c3_renderers,
             $.pivotUtilities.d3_renderers,
-            $.pivotUtilities.export_renderers
+            $.pivotUtilities.export_renderers,
+            $.pivotUtilities.plotly_renderers
             );
         
         var tpl = $.pivotUtilities.aggregatorTemplates;
@@ -77,7 +78,7 @@
             datasource,
             {
                 renderers: renderers,
-                cols: ["Product Family","Product","Regional","Witel",,"Datel","Regional","Payment",], rows: ["Price"],
+                cols: [], rows: ["Price"],
                 rendererName: "Bar Chart"
             }
         );
@@ -112,6 +113,14 @@
             },
             complete : function (data) {
                 var json = JSON.parse(data.responseText);
+                json = JSON.parse(JSON.stringify(json).split('"product":').join('"Product":'));
+                json = JSON.parse(JSON.stringify(json).split('"product_family":').join('"Product Family":'));
+                json = JSON.parse(JSON.stringify(json).split('"regional":').join('"TREG":'));
+                json = JSON.parse(JSON.stringify(json).split('"witel":').join('"WITEL":'));
+                json = JSON.parse(JSON.stringify(json).split('"datel":').join('"DATEL":'));
+                json = JSON.parse(JSON.stringify(json).split('"payment":').join('"Payment Type":'));
+                json = JSON.parse(JSON.stringify(json).split('"price":').join('"Price":'));
+                json = JSON.parse(JSON.stringify(json).split('"ppn":').join('"PPN":'));
                 getPivot(json);
             }
         });

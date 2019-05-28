@@ -35,12 +35,12 @@
                 <h1 style="color:#94b8b8">Prepaid <span><strong class="text-danger">TIBS</strong></span></h1>
                 <br>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <h3 class="float-right"><a href="{{ route('user.login') }}"><span class="badge badge-primary">Login</span></a></h3>
                     </div>
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <h3 class="float-left"><a href="{{ route('pivot.data') }}"><span class="badge badge-secondary">Pivot Data</span></a></h3>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
